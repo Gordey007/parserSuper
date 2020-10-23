@@ -55,6 +55,7 @@ def parser_vacancies():
 
     vacancies = []
     i = 0
+    # commit
     # vacancy = {}
     for item in date:
         vacancy = {'date': item, 'url': url[i]}

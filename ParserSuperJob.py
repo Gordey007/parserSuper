@@ -6,17 +6,6 @@ from lxml.html import fromstring
 
 import xlsxwriter
 
-print('Ввидете, что искать')
-search = input()
-
-print('Ввидете номер города\nКомсомольск-на-амуре - 0\nХабаровск - 1')
-sity_array = ['komsomolsk-na-amure', 'habarovsk']
-sity = sity_array[int(input())]
-
-url = 'https://' + sity + '.superjob.ru/resume/search_resume.html?keywords%5B0%5D%5Bkeys%5D=' + quote(search)\
-      + '&keywords%5B0%5D%5Bskwc%5D=and&keywords%5B0%5D%5Bsrws%5D=7&sbmit=1'
-url2 = 'https://' + sity + '.superjob.ru'
-
 ITEM_PATH = '._2CsQi ._2g1F- ._34bJi'
 ITEM_PATH2 = '._2CsQi ._2g1F- .YYC5F'
 PAGE = '._1BOkc'
@@ -64,22 +53,32 @@ def export_excel(filename, vacancies):
     workbook.close()
 
 
-def main():
-    f = urlopen(url)
-    list_html = f.read().decode('utf-8')
-    list_doc = fromstring(list_html)
+print('Ввидете, что искать')
+search = input('> ')
 
-    pages = []
-    for elem in list_doc.cssselect(PAGE):
-        span = elem.cssselect('span')[0]
-        pages.append(span.text)
+print('Ввидете номер города\nКомсомольск-на-амуре - 0\nХабаровск - 1')
+sity_array = ['komsomolsk-na-amure', 'habarovsk']
+sity = sity_array[int(input('> '))]
 
-    index = 1
-    if pages[-3].isdigit():
-        while index <= int(pages[-3]):
-            print('Страница ' + str(index) + '/' + pages[-3])
-            export_excel('Вакансии ' + search + ' ' + str(index) + '.xlsx', parser_vacancies())
-            index += 1
-    else:
-        print('Страница 1/1')
-        export_excel('Вакансии ' + search + ' 1.xlsx', parser_vacancies())
+url = 'https://' + sity + '.superjob.ru/resume/search_resume.html?keywords%5B0%5D%5Bkeys%5D=' + quote(search)\
+      + '&keywords%5B0%5D%5Bskwc%5D=and&keywords%5B0%5D%5Bsrws%5D=7&sbmit=1'
+url2 = 'https://' + sity + '.superjob.ru'
+
+f = urlopen(url)
+list_html = f.read().decode('utf-8')
+list_doc = fromstring(list_html)
+
+pages = []
+for elem in list_doc.cssselect(PAGE):
+    span = elem.cssselect('span')[0]
+    pages.append(span.text)
+
+index = 1
+if pages[-3].isdigit():
+    while index <= int(pages[-3]):
+        print('Страница ' + str(index) + '/' + pages[-3])
+        export_excel('Вакансии ' + search + ' ' + sity + ' ' + str(index) + '.xlsx', parser_vacancies())
+        index += 1
+else:
+    print('Страница 1/1')
+    export_excel('Вакансии ' + search + ' ' + sity + ' 1.xlsx', parser_vacancies())

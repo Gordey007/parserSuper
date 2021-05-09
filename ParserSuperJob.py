@@ -1,91 +1,50 @@
+# use python ParserSuperJob.py
 from urllib.request import urlopen
 from urllib.parse import urljoin
-from urllib.parse   import quote
-
+from urllib.parse import quote
 from lxml.html import fromstring
-from lxml.etree import XMLSyntaxError
 
 import xlsxwriter
 
-print('Ввидете что искать')
+print('Ввидете, что искать')
 search = input()
-URL = 'https://komsomolsk-na-amure.superjob.ru/resume/search_resume.html?keywords%5B0%5D%5Bkeys%5D=' + quote(search)\
+
+print('Ввидете номер города\nКомсомольск-на-амуре - 0\nХабаровск - 1')
+sity_array = ['komsomolsk-na-amure', 'habarovsk']
+sity = sity_array[int(input())]
+
+url = 'https://' + sity + '.superjob.ru/resume/search_resume.html?keywords%5B0%5D%5Bkeys%5D=' + quote(search)\
       + '&keywords%5B0%5D%5Bskwc%5D=and&keywords%5B0%5D%5Bsrws%5D=7&sbmit=1'
+url2 = 'https://' + sity + '.superjob.ru'
 
-print(URL)
-URL2 = 'https://komsomolsk-na-amure.superjob.ru'
-
-# _1Ttd8 _2CsQi list vakansii
 ITEM_PATH = '._2CsQi ._2g1F- ._34bJi'
-
-# _3dPok
-ITEM_PATH2 = '._2CsQi ._2g1F- .YYC5F '
-
-# icMQ_ YYC5F f-test-link-Inzhener_mehanik_tehnik f-test-link- _3dPok
-
-# s = '._3zucV undefined _3SGgo .f-test-resume-snippet-46283839 .iJCa5 undefined _2nteL ._2wheF _1Ltf7 ._3VUIu ' \
-#             '._2g1F- ._3zucV ._3-1ww undefined _3SGgo _3zucV _3-1ww undefined _3SGgo'
-#
-# DESCR_PATH = '.section-info .left-sect'
-# TEACH_PATH = '#teach_slider .reader_desc .name'
+ITEM_PATH2 = '._2CsQi ._2g1F- .YYC5F'
+PAGE = '._1BOkc'
 
 
 def parser_vacancies():
-    f = urlopen(URL)
+    f = urlopen(url)
     list_html = f.read().decode('utf-8')
     list_doc = fromstring(list_html)
 
-    date = []
+    dates = []
     for elem in list_doc.cssselect(ITEM_PATH):
-        # print(elem)
         span = elem.cssselect('span')[0]
-        date.append(span.text)
-        # print(date)
+        dates.append(span.text)
 
-    url = []
+    urls = []
     for elem in list_doc.cssselect(ITEM_PATH2):
         a = elem.cssselect('a')[0]
-        url.append(urljoin(URL2, a.get('href')))
-        # href = a.get('href')
-        # print(urljoin(URL2, href))
-
-#         p = elem.csselct('p')[0]
-#         load = p.text
-#         url = urljoin(URL, href)
+        urls.append(urljoin(url2, a.get('href')))
 
     vacancies = []
     i = 0
-    # commit
-    # vacancy = {}
-    for item in date:
-        vacancy = {'date': item, 'url': url[i]}
-        # vacancy['date'] = item
-        # vacancy['url'] = url[i]
+    for item in dates:
+        vacancy = {'date': item, 'url': urls[i]}
         vacancies.append(vacancy)
         i += 1
 
-    # for item in vacancies:
-    #     print(item)
-
     return vacancies
-
-#
-#         details_html = urlopen(url).read().decode('utf-8')
-#
-#         try:
-#             details_doc = fromstring(details_html)
-#         except XMLSyntaxError:
-#             continue
-#
-#         descr_elem = details_doc.cssselect(DESCR_PATH)
-#         descr = descr_elem.text_content()
-#
-#         teach_elem = details_doc.cssselect(TEACH_PATH)
-#         teach = [teach_elem.text for teach_elem in teach_elem]
-#
-#         #course['descr'] = descr
-#         course['teach'] = teach
-#         courses.append(course)
 
 
 def export_excel(filename, vacancies):
@@ -106,8 +65,21 @@ def export_excel(filename, vacancies):
 
 
 def main():
-    export_excel('vacancies.xlsx', parser_vacancies())
+    f = urlopen(url)
+    list_html = f.read().decode('utf-8')
+    list_doc = fromstring(list_html)
 
+    page = []
+    for elem in list_doc.cssselect(PAGE):
+        span = elem.cssselect('span')[0]
+        page.append(span.text)
 
-if __name__ == '__main__':
-    main()
+    index = 1
+    if page[-3].isdigit():
+        while index <= int(page[-3]):
+            print('Страница ' + str(index) + '/' + page[-3])
+            export_excel('Вакансии ' + search + ' ' + str(index) + '.xlsx', parser_vacancies())
+            index += 1
+    else:
+        print('Страница 1/1')
+        export_excel('Вакансии ' + search + ' 1.xlsx', parser_vacancies())

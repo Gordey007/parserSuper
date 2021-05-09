@@ -69,15 +69,15 @@ def main():
     list_html = f.read().decode('utf-8')
     list_doc = fromstring(list_html)
 
-    page = []
+    pages = []
     for elem in list_doc.cssselect(PAGE):
         span = elem.cssselect('span')[0]
-        page.append(span.text)
+        pages.append(span.text)
 
     index = 1
-    if page[-3].isdigit():
-        while index <= int(page[-3]):
-            print('Страница ' + str(index) + '/' + page[-3])
+    if pages[-3].isdigit():
+        while index <= int(pages[-3]):
+            print('Страница ' + str(index) + '/' + pages[-3])
             export_excel('Вакансии ' + search + ' ' + str(index) + '.xlsx', parser_vacancies())
             index += 1
     else:

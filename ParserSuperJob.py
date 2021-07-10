@@ -56,8 +56,8 @@ def export_excel(filename, vacancies):
 print('Ввидете, что искать')
 search = input('> ')
 
-print('Ввидете номер города\nКомсомольск-на-амуре - 0\nХабаровск - 1')
-sity_array = ['komsomolsk-na-amure', 'habarovsk']
+print('Ввидете номер города или страны\nКомсомольск-на-амуре - 0\nХабаровск - 1\nrussia - 2')
+sity_array = ['komsomolsk-na-amure', 'habarovsk', 'russia']
 sity = sity_array[int(input('> '))]
 
 url = 'https://' + sity + '.superjob.ru/resume/search_resume.html?keywords%5B0%5D%5Bkeys%5D=' + quote(search)\
@@ -68,17 +68,5 @@ f = urlopen(url)
 list_html = f.read().decode('utf-8')
 list_doc = fromstring(list_html)
 
-pages = []
-for elem in list_doc.cssselect(PAGE):
-    span = elem.cssselect('span')[0]
-    pages.append(span.text)
+export_excel('Вакансии ' + search + ' ' + sity + '.xlsx', parser_vacancies())
 
-index = 1
-if pages[-3].isdigit():
-    while index <= int(pages[-3]):
-        print('Страница ' + str(index) + '/' + pages[-3])
-        export_excel('Вакансии ' + search + ' ' + sity + ' ' + str(index) + '.xlsx', parser_vacancies())
-        index += 1
-else:
-    print('Страница 1/1')
-    export_excel('Вакансии ' + search + ' ' + sity + ' 1.xlsx', parser_vacancies())

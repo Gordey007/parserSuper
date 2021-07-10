@@ -69,4 +69,3 @@ list_html = f.read().decode('utf-8')
 list_doc = fromstring(list_html)
 
 export_excel('Вакансии ' + search + ' ' + sity + '.xlsx', parser_vacancies())
-
